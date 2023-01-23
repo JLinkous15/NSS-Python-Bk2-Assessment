@@ -31,7 +31,7 @@ def get_single_species(id):
         db_cursor.execute(sql_string, (id,))
         data = db_cursor.fetchone()
         if data is None:
-            return {"message":"Not Supported"}
+            return {"message":"Bad Request"}
         else:
             species = Species(data["id"], data["name"])
             return species.__dict__

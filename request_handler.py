@@ -41,9 +41,11 @@ class HandleRequests(BaseHTTPRequestHandler):
                 else:
                     response=get_all_species()
             else:
-                response = {"message":"Not Supported"}
+                response = {"response":"Not Supported"}
 
         if 'message' in response:
+            self._set_headers(400)
+        elif 'response' in response:
             self._set_headers(404)
         else:
             self._set_headers(200)
