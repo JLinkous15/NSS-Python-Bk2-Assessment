@@ -1,4 +1,5 @@
 import json
+from views import *
 from urllib.parse import urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -6,21 +7,46 @@ class HandleRequests(BaseHTTPRequestHandler):
     """Controls the functionality of HTTP requests to the server
     """
 
+    def parse_url(self, path):
+        url_components = urlparse(path)
+        path_params = url_components.path.strip("/").split("/")
+        query_params = []
+
+        if url_components.query != '':
+            query_params = url_components.query.split("&")
+
+        resource = path_params[0]
+        id = None
+
+        try:
+            id = int(path_params[1])
+        except IndexError:
+            pass  # No route parameter exists: /animals
+        except ValueError:
+            pass  # Request had trailing slash: /animals/
+
+        return (resource, id, query_params)
+
     def do_GET(self):
         """Handles GET requests to the server
         """
-        self._set_headers(200)
-        
-        if self.path == "/animals":
-            # In Python, this is a list of dictionaries
-            # In JavaScript, you would call it an array of objects
-            response = [
-                {"id": 1, "name": "Snickers", "species": "Dog"},
-                {"id": 2, "name": "Lenny", "species": "Cat"}
-            ]
+        parsed = self.parse_url(self.path)
+        ( resource, id, query_params ) = parsed
 
+        
+        if '?' not in self.path:
+            if resource == 'species':
+                if id is not None:
+                    response =get_single_species(id)
+                else:
+                    response=get_all_species()
+            else:
+                response = {"message":"Not Supported"}
+
+        if 'message' in response:
+            self._set_headers(404)
         else:
-            response = []
+            self._set_headers(200)
 
         # Send a JSON formatted string as a response
         self.wfile.write(json.dumps(response).encode())
