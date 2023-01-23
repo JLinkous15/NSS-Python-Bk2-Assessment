@@ -40,13 +40,33 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response =get_single_species(id)
                 else:
                     response=get_all_species()
+            elif resource == 'snakes':
+                if id is not None:
+                    response =get_single_snake(id)
+                else:
+                    response=get_all_snakes(query_params)
+            elif resource == 'owners':
+                if id is not None:
+                    response =get_single_owner(id)
+                else:
+                    response=get_all_owners()
             else:
-                response = {"response":"Not Supported"}
+                response = {"Message":"Not Supported"}
+        else:
+            if resource == 'snakes':
+                if id is not None:
+                    response =get_single_snake(id)
+                else:
+                    response=get_all_snakes(query_params)
 
-        if 'message' in response:
-            self._set_headers(400)
-        elif 'response' in response:
-            self._set_headers(404)
+        #Setting the appropriate header
+        if "message" in response:
+            if response["message"] == "Bad Request":
+                self._set_headers(400)
+            elif response["message"] == "Not Supported":
+                self._set_headers(404)
+            elif response["message"] == "Not Allowed":
+                self._set_headers(405)
         else:
             self._set_headers(200)
 
