@@ -1,6 +1,6 @@
 import json
 from views import *
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -76,15 +76,52 @@ class HandleRequests(BaseHTTPRequestHandler):
     # Here's a method on the class that overrides the parent's method.
     # It handles any POST request.
     def do_POST(self):
-        """Handles POST requests to the server"""
-
-        # Set response code to 'Created'
-        self._set_headers(201)
+        """Posts snakes to server, but only with all necessary information"""
 
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-        response = { "payload": post_body }
-        self.wfile.write(json.dumps(response).encode())
+
+        # Convert JSON string to a Python dictionary
+        post_body = json.loads(post_body)
+        
+        # Parse the URL
+        parsed = self.parse_url(self.path)
+        ( resource, id, query_params ) = parsed
+
+        # Initialize new snake
+        new_post = None
+
+        # Add a new animal to the list. Don't worry about
+        # the orange squiggle, you'll define the create_animal
+        # function next.
+        if resource == "snakes":
+            
+            if "gender" not in post_body:
+                print("needs gender")
+                new_post = {"message":"Bad request. Please provide a gender."}
+            elif "name" not in post_body:
+                print("needs name")
+                new_post = {"message":"Bad request. Please provide a name."}
+            elif "color" not in post_body:
+                print("needs color")
+                new_post = {"message":"Bad request. Please provide a color."}
+            elif "owner_id" not in post_body:
+                print("needs owner_id")
+                new_post = {"message":"Bad request. Please provide a owner_id."}
+            elif "species" not in post_body:
+                print("needs species_id")
+                new_post = {"message":"Bad request. Please provide a species_id."}
+            else:
+                post_body["species_id"] = post_body.pop("species")
+                new_post = create_snake(post_body)
+
+        if "message" in post_body:
+            self._set_headers(400)
+        else:
+            self._set_headers(201)
+
+        # Encode the new animal and send in response
+        self.wfile.write(json.dumps(new_post).encode())
 
     # A method that handles any PUT request.
     def do_PUT(self):

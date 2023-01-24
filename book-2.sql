@@ -11,10 +11,10 @@ create table Owners (
 );
 
 create table Snakes (
-	id INT,
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	name VARCHAR(50),
-	owner_id INT,
-	species_id INT,
+	owner_id INTEGER,
+	species_id INTEGER,
 	gender VARCHAR(50),
 	color VARCHAR(50)
 );
@@ -67,3 +67,5 @@ insert into Snakes (id, name, owner_id, species_id, gender, color) values (28, '
 insert into Snakes (id, name, owner_id, species_id, gender, color) values (29, 'Stéphanie', 8, 5, 'Female', 'Purple');
 insert into Snakes (id, name, owner_id, species_id, gender, color) values (30, 'Liè', 7, 1, 'Female', 'Maroon');
 
+DELETE FROM Snakes
+WHERE name = "Phillip"
